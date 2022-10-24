@@ -19,10 +19,12 @@ app.get("/api/movies", movieHandlers.getMovies);
 app.get("/api/movies/:id", movieHandlers.getMovieById);
 app.post("/api/movies", movieHandlers.postMovies);
 app.put("/api/movies", movieHandlers.updateMovie);
+app.delete("/app/movies", movieHandlers.deleteMovie);
 app.get("/api/users", userHandlers.getUsers);
 app.get("/api/users/:id", userHandlers.getUserById);
 app.post("/api/users", userHandlers.postUsers);
 app.put("/api/users", userHandlers.updateUser);
+app.delete("/app/delete", userHandlers.deleteUser)
 
 
 app.listen(port, (err) => {
