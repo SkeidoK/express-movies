@@ -1,8 +1,35 @@
 const database = require("./database");
 
 const getUsers = (req, res) => {
+  const initialSql = "select * from users";
+  const where = [];
+
+  if (req.query.language != null) {
+    where.push({
+      column: "language",
+      value: req.query.language,
+      operator: "=",
+    });
+  }
+
+  if (req.query.city != null) {
+    where.push({
+      column: "city",
+      value: req.query.city,
+      operator: "=",
+    });
+  }
   database
-    .query("select * from users")
+    .query(
+      where.reduce(
+        (sql,
+        { column, operator },
+        index) =>
+          `${sql} ${index === 0 ? "where" : "and"} ${column} ${operator} ?`,
+        initialSql
+      ),
+      where.map(({ value }) => value)
+    )
     .then(([users]) => {
       res.json(users);
     })
@@ -15,9 +42,11 @@ const getUsers = (req, res) => {
 const getUserById = (req, res) => {
   const id = parseInt(req.params.id);
 
-
   database
-    .query("select id, firstname, lastname, email, city, language from users where id = ?", [id])
+    .query(
+      "select id, firstname, lastname, email, city, language from users where id = ?",
+      [id]
+    )
     .then(([users]) => {
       if (users[0] != null) {
         res.json(users[0]);
@@ -33,20 +62,21 @@ const getUserById = (req, res) => {
 };
 
 const postUsers = (req, res) => {
-  const { firstname, lastname, email, city, language, hashedPassword } = req.body;
+  const { firstname, lastname, email, city, language, hashedPassword } =
+    req.body;
 
   database
     .query(
-      "INSERT INTO users(firstname, lastname, email, city, language, hashedPassword) VALUES (?, ?, ?, ?, ?, ?)", 
+      "INSERT INTO users(firstname, lastname, email, city, language, hashedPassword) VALUES (?, ?, ?, ?, ?, ?)",
       [firstname, lastname, email, city, language, hashedPassword]
-      )
-      .then(([result]) => {
-        res.location(`/api/movies/${result.insertId}`).sendStatus(201);
-      })
-      .catch((err)=> {
-        console.error(err);
-        res.status(500).send("Error saving the user");
-      })
+    )
+    .then(([result]) => {
+      res.location(`/api/movies/${result.insertId}`).sendStatus(201);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error saving the user");
+    });
 };
 
 const updateUser = (req, res) => {
@@ -100,8 +130,8 @@ const getUserByEmailWithPasswordAndPassToNext = (req, res) => {
       } else {
         res.status(404).send("Not Found");
       }
-    })
-}
+    });
+};
 
 module.exports = {
   getUsers,
@@ -109,5 +139,5 @@ module.exports = {
   postUsers,
   updateUser,
   deleteUser,
-  getUserByEmailWithPasswordAndPassToNext
+  getUserByEmailWithPasswordAndPassToNext,
 };

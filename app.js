@@ -10,6 +10,8 @@ const welcome = (req, res) => {
   res.send("Welcome to my favourite movie list");
 };
 
+const userHandlers = require("./userHandlers");
+
 app.get("/", welcome);
 app.post(
   "/app/login",
@@ -18,7 +20,6 @@ app.post(
 );
 
 const movieHandlers = require("./movieHandlers");
-const userHandlers = require("./userHandlers");
 
 app.get("/api/movies", movieHandlers.getMovies);
 app.get("/api/movies/:id", movieHandlers.getMovieById);
